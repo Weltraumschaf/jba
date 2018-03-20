@@ -1,0 +1,11 @@
+[package]
+name = "jba"
+version = "1.0.0"
+authors = ["Sven Strittmatter <ich@weltraumschaf.de>"]
+description = "A java bytecode analyzer."
+
+[dependencies]
+byteorder = "1"
+
+[dev-dependencies]
+hamcrest = "0.1.5"
