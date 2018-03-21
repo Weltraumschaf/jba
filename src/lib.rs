@@ -2,6 +2,7 @@
 #[macro_use]
 extern crate hamcrest;
 extern crate byteorder;
+
 use std::io::prelude::*;
 
 use std::fs::File;
@@ -12,7 +13,7 @@ use std::fmt::Write;
 pub fn analyze_file(file_name: &str) -> Result<(), String> {
     println!("{}:", file_name);
 
-    let mut class_file = match File::open(file_name) {
+    let class_file = match File::open(file_name) {
         Ok(file) => file,
         Err(_) => {
             return Err(format!("Can' read file {}!", file_name));
@@ -39,25 +40,35 @@ pub fn analyze_file(file_name: &str) -> Result<(), String> {
         attribute_info attributes[attributes_count];
     }
     */
+    extract_magic(&class_file);
+    extract_minor_version(&class_file);
+    extract_major_version(&class_file);
+
+    Ok(())
+}
+
+fn extract_magic(mut class_file: &File) {
     let mut buffer = [0; 4];
     class_file.read(&mut buffer[..]).unwrap();
     println!("magic:         {}", format_bytes_as_hex(&buffer));
+}
 
+fn extract_minor_version(mut class_file: &File) {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
     println!("minor_version: {} (d{})",
         format_bytes_as_hex(&buffer),
         rdr.read_u16::<BigEndian>().unwrap());
+}
 
+fn extract_major_version(mut class_file: &File) {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("major_version: {} (d{})",
+    println!("minor_version: {} (d{})",
         format_bytes_as_hex(&buffer),
         rdr.read_u16::<BigEndian>().unwrap());
-
-    Ok(())
 }
 
 fn format_bytes_as_hex(bytes: &[u8]) -> String {
