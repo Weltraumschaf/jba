@@ -10,6 +10,8 @@ use std::io::Cursor;
 use byteorder::{BigEndian, ReadBytesExt};
 use std::fmt::Write;
 
+const NAME_WIDTH: usize = 21;
+
 pub fn analyze_file(file_name: &str) -> Result<(), String> {
     println!("{}:", file_name);
 
@@ -43,6 +45,7 @@ pub fn analyze_file(file_name: &str) -> Result<(), String> {
     extract_magic(&class_file);
     extract_minor_version(&class_file);
     extract_major_version(&class_file);
+    extract_constant_pool(&class_file);
 
     Ok(())
 }
@@ -50,14 +53,15 @@ pub fn analyze_file(file_name: &str) -> Result<(), String> {
 fn extract_magic(mut class_file: &File) {
     let mut buffer = [0; 4];
     class_file.read(&mut buffer[..]).unwrap();
-    println!("magic:         {}", format_bytes_as_hex(&buffer));
+    println!("{}{}", pad_name("magic:"), format_bytes_as_hex(&buffer));
 }
 
 fn extract_minor_version(mut class_file: &File) {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("minor_version: {} (d{})",
+    println!("{}{} (d{})",
+        pad_name("minor_version:"),
         format_bytes_as_hex(&buffer),
         rdr.read_u16::<BigEndian>().unwrap());
 }
@@ -66,7 +70,18 @@ fn extract_major_version(mut class_file: &File) {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("minor_version: {} (d{})",
+    println!("{}{} (d{})",
+        pad_name("minor_version:"),
+        format_bytes_as_hex(&buffer),
+        rdr.read_u16::<BigEndian>().unwrap());
+}
+
+fn extract_constant_pool(mut class_file: &File) {
+    let mut buffer = [0; 2];
+    class_file.read(&mut buffer[..]).unwrap();
+    let mut rdr = Cursor::new(&buffer);
+    println!("{}{} (d{})",
+        pad_name("constant_pool_count:"),
         format_bytes_as_hex(&buffer),
         rdr.read_u16::<BigEndian>().unwrap());
 }
@@ -81,4 +96,33 @@ fn format_bytes_as_hex(bytes: &[u8]) -> String {
     formatted.trim().to_owned()
 }
 
+fn pad_name(name: &str) -> String {
+    if name.len() < NAME_WIDTH {
+        let pad_size: usize = NAME_WIDTH - name.len();
+        let pad = (0..pad_size).map(|_| " ").collect::<String>();
+        format!("{}{}", name, pad)
+    } else {
+        format!("{}", name)
+    }
+}
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use hamcrest::prelude::*;
+
+    #[test]
+    fn pad_name_name_is_shorter_than_wanted() {
+        assert_that!(&pad_name("foo"), is(equal_to("foo                  ")));
+    }
+
+    #[test]
+    fn pad_name_name_has_same_length_as_wanted() {
+        assert_that!(&pad_name("foofoofoofoofoofoofoo"), is(equal_to("foofoofoofoofoofoofoo")));
+    }
+
+    #[test]
+    fn pad_name_name_is_longer_than_wanted() {
+        assert_that!(&pad_name("foofoofoofoofoofoofoofoo"), is(equal_to("foofoofoofoofoofoofoofoo")));
+    }
+}
