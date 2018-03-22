@@ -14,6 +14,7 @@ const NAME_WIDTH: usize = 21;
 
 pub fn analyze_file(file_name: &str) -> Result<(), String> {
     println!("{}:", file_name);
+    println!("{}", "=".repeat(file_name.len() + 1));
 
     let class_file = match File::open(file_name) {
         Ok(file) => file,
