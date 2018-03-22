@@ -43,45 +43,45 @@ pub fn analyze_file(file_name: &str) -> Result<(), String> {
         attribute_info attributes[attributes_count];
     }
     */
-    extract_magic(&class_file);
-    extract_minor_version(&class_file);
-    extract_major_version(&class_file);
-    extract_constant_pool(&class_file);
+    println!("{}", extract_magic(&class_file));
+    println!("{}", extract_minor_version(&class_file));
+    println!("{}", extract_major_version(&class_file));
+    println!("{}", extract_constant_pool(&class_file));
 
     Ok(())
 }
 
-fn extract_magic(mut class_file: &File) {
+fn extract_magic(mut class_file: &File) -> String {
     let mut buffer = [0; 4];
     class_file.read(&mut buffer[..]).unwrap();
-    println!("{}", format_entry("magic:",&buffer));
+    format!("{}", format_entry("magic:", &buffer))
 }
 
-fn extract_minor_version(mut class_file: &File) {
+fn extract_minor_version(mut class_file: &File) -> String {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("{} (d{})",
+    format!("{} (d{})",
         format_entry("minor_version:", &buffer),
-        rdr.read_u16::<BigEndian>().unwrap());
+        rdr.read_u16::<BigEndian>().unwrap())
 }
 
-fn extract_major_version(mut class_file: &File) {
+fn extract_major_version(mut class_file: &File) -> String {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("{} (d{})",
+    format!("{} (d{})",
         format_entry("minor_version:", &buffer),
-        rdr.read_u16::<BigEndian>().unwrap());
+        rdr.read_u16::<BigEndian>().unwrap())
 }
 
-fn extract_constant_pool(mut class_file: &File) {
+fn extract_constant_pool(mut class_file: &File) -> String {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("{} (d{})",
+    format!("{} (d{})",
         format_entry("constant_pool_count:", &buffer),
-        rdr.read_u16::<BigEndian>().unwrap());
+        rdr.read_u16::<BigEndian>().unwrap())
 }
 
 fn format_entry(name: &str, bytes: &[u8]) -> String {
