@@ -53,16 +53,15 @@ pub fn analyze_file(file_name: &str) -> Result<(), String> {
 fn extract_magic(mut class_file: &File) {
     let mut buffer = [0; 4];
     class_file.read(&mut buffer[..]).unwrap();
-    println!("{}{}", pad_name("magic:"), format_bytes_as_hex(&buffer));
+    println!("{}", format_entry("magic:",&buffer));
 }
 
 fn extract_minor_version(mut class_file: &File) {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("{}{} (d{})",
-        pad_name("minor_version:"),
-        format_bytes_as_hex(&buffer),
+    println!("{} (d{})",
+        format_entry("minor_version:", &buffer),
         rdr.read_u16::<BigEndian>().unwrap());
 }
 
@@ -70,9 +69,8 @@ fn extract_major_version(mut class_file: &File) {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("{}{} (d{})",
-        pad_name("minor_version:"),
-        format_bytes_as_hex(&buffer),
+    println!("{} (d{})",
+        format_entry("minor_version:", &buffer),
         rdr.read_u16::<BigEndian>().unwrap());
 }
 
@@ -80,10 +78,16 @@ fn extract_constant_pool(mut class_file: &File) {
     let mut buffer = [0; 2];
     class_file.read(&mut buffer[..]).unwrap();
     let mut rdr = Cursor::new(&buffer);
-    println!("{}{} (d{})",
-        pad_name("constant_pool_count:"),
-        format_bytes_as_hex(&buffer),
+    println!("{} (d{})",
+        format_entry("constant_pool_count:", &buffer),
         rdr.read_u16::<BigEndian>().unwrap());
+}
+
+fn format_entry(name: &str, bytes: &[u8]) -> String {
+    format!("{}{}",
+        pad_name(name),
+        format_bytes_as_hex(&bytes)
+    )
 }
 
 fn format_bytes_as_hex(bytes: &[u8]) -> String {
