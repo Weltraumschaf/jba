@@ -9,7 +9,7 @@ pub fn format_entry(name: &str, bytes: &[u8]) -> String {
     )
 }
 
-fn format_bytes_as_hex(bytes: &[u8]) -> String {
+pub fn format_bytes_as_hex(bytes: &[u8]) -> String {
     let mut formatted = String::new();
 
     for &byte in bytes.iter() {
@@ -26,6 +26,26 @@ fn pad_name(name: &str) -> String {
         format!("{}{}", name, pad)
     } else {
         format!("{}", name)
+    }
+}
+
+pub fn format_constant_type(constant_type: u8) -> &'static str {
+    match constant_type {
+         1 => "CONSTANT_Utf8",
+         3 => "CONSTANT_Integer",
+         4 => "CONSTANT_Float",
+         5 => "CONSTANT_Long",
+         6 => "CONSTANT_Double",
+         7 => "CONSTANT_Class",
+         8 => "CONSTANT_String",
+         9 => "CONSTANT_Fieldref",
+        10 => "CONSTANT_Methodref",
+        11 => "CONSTANT_InterfaceMethodref",
+        12 => "CONSTANT_NameAndType",
+        15 => "CONSTANT_MethodHandle",
+        16 => "CONSTANT_MethodType",
+        18 => "CONSTANT_InvokeDynamic",
+        _ => "unknown",
     }
 }
 
